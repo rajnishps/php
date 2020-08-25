@@ -13,10 +13,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+
+Route::get('/',function (){
+        return view('welcome');
 });
 
-Route::get('/test', function () {
-    return view('test');
+Route::get('/about',function (){
+    return view('about', [
+        'article' => App\Article::take(3)->latest()->get()
+    ]);
 });
+
+Route::get('/articles', 'ArticlesController@index');
+Route::get('/articles', 'ArticlesController@store');
+Route::get('/articles/create', 'ArticlesController@create');
+Route::get('/articles/{article}', 'ArticlesController@show');
+Route::get('/articles/{article}/edit', 'ArticlesController@edit');
+Route::get('/articles/{article}', 'ArticlesController@update');

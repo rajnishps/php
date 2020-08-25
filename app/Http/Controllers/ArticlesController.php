@@ -1,85 +1,80 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Article;
 
-use App\Articles;
-use Illuminate\Http\Request;
+
+
+
+
 
 class ArticlesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        //
+        $articles = Article::latest()->get();
+
+        return view('articles\index', ['articles =>$article']);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
-        //
+        return view('articles\create');
+    }
+
+
+    public function store()
+    {
+        Article::create($this->validateArticle());
+
+        return redirect('/articles');
+
+    }
+
+
+
+    public function show(Article $article)
+    {
+
+        return view('articles\show', ['article' => $article]);
+    }
+
+
+
+    public function edit(Article $article)
+    {
+
+        return view('articles\edit', compact('article'));
+    }
+
+
+
+    public function update(Article $article)
+    {
+        $article->update($this->validateArticle());
+
+        return redirect('/articles/'. $article->id);
+
+    }
+
+
+
+    public function destroy()
+    {
+
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function store(Request $request)
+    public function validateArticle(): array
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Articles  $articles
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Articles $articles)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Articles  $articles
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Articles $articles)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Articles  $articles
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Articles $articles)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Articles  $articles
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Articles $articles)
-    {
-        //
+        return request()->validate([
+            'title' => 'required',
+            'excerpt' => 'required',
+            'body' => 'required',
+        ]);
     }
 }
