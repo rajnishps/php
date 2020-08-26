@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Article;
-
-
-
-
+use App\Tag;
 
 
 class ArticlesController extends Controller
@@ -13,7 +10,12 @@ class ArticlesController extends Controller
 
     public function index()
     {
-        $articles = Article::latest()->get();
+        if (request('tag')) {
+            $articles = Tag::where('name', request('tag'))->first0rFail()->articles;
+
+        } else {
+            $articles = Article::latest()->get();
+        }
 
         return view('articles\index', ['articles =>$article']);
     }
@@ -21,15 +23,24 @@ class ArticlesController extends Controller
 
     public function create()
     {
-        return view('articles\create');
+        return view('articles\create', [
+            'tags' => Tag::all()
+        ]);
     }
 
 
     public function store()
     {
-        Article::create($this->validateArticle());
+        $this->validateArticle();
 
-        return redirect('/articles');
+        $article = new Article(request(['title', 'excerpt', 'body']));
+
+        $article->user_id = 1;
+        $article->save();
+
+        $article->tags()->attach(request('tags'));
+
+        return redirect(route('articles\index'));
 
     }
 
@@ -60,21 +71,13 @@ class ArticlesController extends Controller
     }
 
 
-
-    public function destroy()
-    {
-
-    }
-
-    /**
-     * @return array
-     */
     public function validateArticle(): array
     {
         return request()->validate([
             'title' => 'required',
             'excerpt' => 'required',
             'body' => 'required',
+            'tags' => 'exists:tags,id'
         ]);
     }
 }
